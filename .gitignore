@@ -1,0 +1,6 @@
+config.json
+*.pyc
+geckodriver.log
+.idea/
+venv/
+
