@@ -4,8 +4,7 @@ import mail
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
-
-DRIVER_PATH = '/Users/weiming/PycharmProjects/chromedriver'
+CHROME_PATH = "chrome_path"
 BBDC_WEBSITE = 'https://www.bbdc.sg'
 DEFAULT_TIMEOUT = 5
 
@@ -19,8 +18,8 @@ ALL_SESSIONS = "all_sessions"
 WANT_SESSIONS = "want_sessions"
 
 
-def init_driver():
-    chrome_driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+def init_driver(path):
+    chrome_driver = webdriver.Chrome(executable_path=path)
     chrome_driver.wait = WebDriverWait(chrome_driver, DEFAULT_TIMEOUT)
     return chrome_driver
 
@@ -115,7 +114,7 @@ def find_available_slots(driver, want_sessions):
 if __name__ == "__main__":
     config = helper.read_config()
 
-    browser = init_driver()
+    browser = init_driver(config[CHROME_PATH])
 
     login(browser, config[BBDC][USERNAME], config[BBDC][PASSWORD])
 
