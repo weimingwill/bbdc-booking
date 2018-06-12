@@ -3,4 +3,5 @@ config.json
 geckodriver.log
 .idea/
 venv/
+env/
 
