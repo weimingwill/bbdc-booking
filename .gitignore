@@ -4,4 +4,4 @@ geckodriver.log
 .idea/
 venv/
 env/
-
+system.log

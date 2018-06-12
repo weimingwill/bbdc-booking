@@ -2,6 +2,7 @@ import time
 import helper
 import mail
 from selenium import webdriver
+from pyvirtualdisplay import Display
 from selenium.webdriver.support.ui import WebDriverWait
 
 CHROME_PATH = "chrome_path"
@@ -19,6 +20,8 @@ WANT_SESSIONS = "want_sessions"
 
 
 def init_driver(path):
+    display = Display(visible=0, size=(800, 600))
+    display.start()
     chrome_driver = webdriver.Chrome(executable_path=path)
     chrome_driver.wait = WebDriverWait(chrome_driver, DEFAULT_TIMEOUT)
     return chrome_driver
@@ -63,6 +66,7 @@ def agree_terms(driver):
     driver.switch_to_frame("mainFrame")
 
     # agree
+    time.sleep(0.5)
     button = driver.find_element_by_xpath("/html/body/table/tbody/tr[7]/td[1]/center/table/tbody/tr[6]/td[1]/input")
     button.click()
     driver.switch_to_default_content()
@@ -74,6 +78,7 @@ def select_all(driver):
     driver.switch_to_frame("mainFrame")
 
     # select all months, all sessions, all days
+    time.sleep(1)
     all_month_box = driver.find_element_by_name("allMonth")
     all_session_box = driver.find_element_by_name("allSes")
     all_days_box = driver.find_element_by_name("allDay")
@@ -97,6 +102,7 @@ def find_available_slots(driver, want_sessions):
     driver.switch_to_frame("mainFrame")
 
     # find slots
+    time.sleep(2)
     radios = driver.find_elements_by_xpath("//input[@type='radio']")
     for radio in radios:
         td = radio.find_element_by_xpath('..')
