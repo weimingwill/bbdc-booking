@@ -1,5 +1,6 @@
 import time
 import helper
+import mail
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -7,7 +8,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 DRIVER_PATH = '/Users/weiming/PycharmProjects/chromedriver'
 BBDC_WEBSITE = 'https://www.bbdc.sg'
 DEFAULT_TIMEOUT = 5
-WANT_SESSIONS = ['4', '5', '6']
+
+# config keys
+BBDC = "bbdc"
+USERNAME = "username"
+PASSWORD = "password"
+GMAIL = "gmail"
+EMAIL = "email"
+ALL_SESSIONS = "all_sessions"
+WANT_SESSIONS = "want_sessions"
 
 
 def init_driver():
@@ -16,7 +25,7 @@ def init_driver():
     return chrome_driver
 
 
-def login(driver):
+def login(driver, username, password):
     print("start login")
     driver.get(BBDC_WEBSITE)
 
@@ -26,15 +35,14 @@ def login(driver):
 
     # key in username & password to login
     form = driver.find_element_by_tag_name("form")
-    username = form.find_element_by_name("txtNRIC")
+    nric = form.find_element_by_name("txtNRIC")
     pwd = form.find_element_by_name("txtPassword")
     login_btn = form.find_element_by_name("btnLogin")
 
-    data = helper.read_config()
-    username.clear()
-    username.send_keys(data["username"])
+    nric.clear()
+    nric.send_keys(username)
     pwd.clear()
-    pwd.send_keys(data["password"])
+    pwd.send_keys(password)
     login_btn.click()
     print("complete login")
 
@@ -82,7 +90,7 @@ def select_all(driver):
     driver.switch_to_default_content()
 
 
-def find_available_slots(driver):
+def find_available_slots(driver, want_sessions):
     print("find available slots")
     times = []
 
@@ -97,22 +105,19 @@ def find_available_slots(driver):
         parts = text.split(",")
         session = parts[3]
         session = session.replace('"', '')
-        if session in WANT_SESSIONS:
+        if session in want_sessions:
             current = helper.format_session(session, parts)
             times.append(current)
 
     return times
 
 
-def send_email():
-    print("send email")
-    pass
-
-
 if __name__ == "__main__":
+    config = helper.read_config()
+
     browser = init_driver()
 
-    login(browser)
+    login(browser, config[BBDC][USERNAME], config[BBDC][PASSWORD])
 
     to_practical_test(browser)
 
@@ -120,12 +125,19 @@ if __name__ == "__main__":
 
     select_all(browser)
 
-    sessions = find_available_slots(browser)
+    slots = find_available_slots(browser, config[WANT_SESSIONS])
 
     browser.quit()
 
-    if len(sessions) > 0:
-        send_email()
+    if len(slots) > 0:
+        subject = "Book BBDC Practical Session"
+        msg = "all available sessions: \n"
+        for slot in slots:
+            msg += slot + "\n"
+
+        email = config[GMAIL][EMAIL]
+        pwd = config[GMAIL][PASSWORD]
+        mail.send(email, pwd, email, subject, msg)
     else:
         print("no wanted session")
 
