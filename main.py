@@ -4,6 +4,8 @@ import mail
 from selenium import webdriver
 from pyvirtualdisplay import Display
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+
 
 CHROME_PATH = "chrome_path"
 BBDC_WEBSITE = 'https://www.bbdc.sg'
@@ -22,6 +24,12 @@ WANT_SESSIONS = "want_sessions"
 def init_driver(path):
     display = Display(visible=0, size=(800, 600))
     display.start()
+
+    chrome_options = Options()
+    # argument to switch off suid sandBox and no sandBox in Chrome
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-setuid-sandbox")
+
     chrome_driver = webdriver.Chrome(executable_path=path)
     chrome_driver.wait = WebDriverWait(chrome_driver, DEFAULT_TIMEOUT)
     return chrome_driver
@@ -32,6 +40,7 @@ def login(driver, username, password):
     driver.get(BBDC_WEBSITE)
 
     # switch to frame
+    time.sleep(0.1)
     frame = driver.find_element_by_id("login_style").find_element_by_tag_name("iframe")
     driver.switch_to_frame(frame)
 
@@ -55,6 +64,7 @@ def to_practical_test(driver):
     driver.switch_to_frame("leftFrame")
 
     # go to terms and conditions page
+    time.sleep(0.1)
     a = driver.find_element_by_xpath("/html/body/table/tbody/tr/td/table/tbody/tr[11]/td[3]/a")
     a.click()
     driver.switch_to_default_content()
@@ -119,31 +129,37 @@ def find_available_slots(driver, want_sessions):
 
 if __name__ == "__main__":
     config = helper.read_config()
+    email = config[GMAIL][EMAIL]
+    pwd = config[GMAIL][PASSWORD]
 
-    browser = init_driver(config[CHROME_PATH])
+    try:
+        browser = init_driver(config[CHROME_PATH])
 
-    login(browser, config[BBDC][USERNAME], config[BBDC][PASSWORD])
+        login(browser, config[BBDC][USERNAME], config[BBDC][PASSWORD])
 
-    to_practical_test(browser)
+        to_practical_test(browser)
 
-    agree_terms(browser)
+        agree_terms(browser)
 
-    select_all(browser)
+        select_all(browser)
 
-    slots = find_available_slots(browser, config[WANT_SESSIONS])
+        slots = find_available_slots(browser, config[WANT_SESSIONS])
 
-    browser.quit()
+        browser.quit()
 
-    if len(slots) > 0:
-        subject = "Book BBDC Practical Session"
-        msg = "all available sessions: \n"
-        for slot in slots:
-            msg += slot + "\n"
+        if len(slots) > 0:
+            subject = "Book BBDC Practical Session"
+            msg = "all available sessions: \n"
+            for slot in slots:
+                msg += slot + "\n"
 
-        email = config[GMAIL][EMAIL]
-        pwd = config[GMAIL][PASSWORD]
+            mail.send(email, pwd, email, subject, msg)
+        else:
+            print("no wanted session")
+    except Exception as e:
+        subject = "BBDC Auto Booking Error"
+        msg = e.message
         mail.send(email, pwd, email, subject, msg)
-    else:
-        print("no wanted session")
+
 
 
