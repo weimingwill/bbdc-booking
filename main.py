@@ -157,8 +157,9 @@ if __name__ == "__main__":
         else:
             print("no wanted session")
     except Exception as e:
+        print(e)
         subject = "BBDC Auto Booking Error"
-        msg = e.message
+        msg = str(e)
         mail.send(email, pwd, email, subject, msg)
 
 
