@@ -161,6 +161,3 @@ if __name__ == "__main__":
         subject = "BBDC Auto Booking Error"
         msg = str(e)
         mail.send(email, pwd, email, subject, msg)
-
-
-

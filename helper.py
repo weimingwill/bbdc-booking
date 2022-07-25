@@ -14,5 +14,3 @@ def format_session(session, parts):
     current = date + ", " + start + "-" + end + ", session: " + session
     current = current.strip().replace('"', '')
     return current
-
-

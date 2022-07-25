@@ -2,6 +2,7 @@ config.json
 *.pyc
 geckodriver.log
 .idea/
-venv/
 env/
 system.log
+/drivers
+/__pycache__
